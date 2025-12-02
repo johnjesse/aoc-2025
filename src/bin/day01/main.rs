@@ -9,7 +9,8 @@ struct Rotation {
 }
 
 fn main() {
-    let input = std::fs::read_to_string("src/bin/input.txt").expect("Failed to read input.txt");
+    let input =
+        std::fs::read_to_string("src/bin/day1/input.txt").expect("Failed to read input.txt");
 
     let rotations = parse_rotations(&input);
     part1(&rotations);
