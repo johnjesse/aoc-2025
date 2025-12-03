@@ -11,5 +11,6 @@
   "accessibility.verbosity.inlineCompletions": false,
   "javascript.suggest.includeAutomaticOptionalChainCompletions": false,
   "javascript.suggest.includeCompletionsForImportStatements": false,
-  "typescript.suggest.includeAutomaticOptionalChainCompletions": false
+  "typescript.suggest.includeAutomaticOptionalChainCompletions": false,
+  "cSpell.words": ["joltage", "joltages"]
 }

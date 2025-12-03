@@ -7,26 +7,24 @@ fn main() {
     let input =
         std::fs::read_to_string("src/bin/day02/input.txt").expect("Failed to read input.txt");
 
-    let ranges = parse_ranges(&input);
-    run(&ranges);
+    let total = parse_ranges(&input)
+        .flat_map(|range| get_invalid_ids_in_range(&range))
+        .sum::<i64>();
+
+    println!("Total {}", total);
 }
 
-fn parse_ranges(input: &str) -> Vec<Range> {
-    let ranges: Vec<Range> = input
-        .split(",")
-        .map(|item| {
-            let (start_raw, end_raw) = item
-                .split_once("-")
-                .expect("No separator found for range parsing");
+fn parse_ranges(input: &str) -> impl Iterator<Item = Range> {
+    return input.split(",").map(|item| {
+        let (start_raw, end_raw) = item
+            .split_once("-")
+            .expect("No separator found for range parsing");
 
-            let start = start_raw.parse::<i64>().expect("Failed to parse sizeStr");
-            let end = end_raw.parse::<i64>().expect("Failed to parse sizeStr");
+        let start = start_raw.parse::<i64>().expect("Failed to parse sizeStr");
+        let end = end_raw.parse::<i64>().expect("Failed to parse sizeStr");
 
-            return Range { start, end };
-        })
-        .collect();
-
-    return ranges;
+        return Range { start, end };
+    });
 }
 
 fn is_invalid_id_part_2(id: i64) -> bool {
@@ -78,17 +76,4 @@ fn get_invalid_ids_in_range(range: &Range) -> Vec<i64> {
     }
 
     return invalid_ids;
-}
-
-fn run(ranges: &Vec<Range>) -> () {
-    let mut all_invalid_ids = Vec::new();
-
-    for range in ranges {
-        all_invalid_ids.extend(get_invalid_ids_in_range(range));
-    }
-
-    let total = all_invalid_ids.iter().sum::<i64>();
-
-    println!("Total {}", total);
-    return;
 }
