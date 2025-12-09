@@ -17,6 +17,16 @@ fn main() {
 
     let mut circuits: Vec<Circuit> = Vec::new();
 
+    junctions.clone().iter().for_each(|junction| {
+        let circuit = Circuit {
+            dead: false,
+            size: 1,
+            junctions: vec![*junction],
+        };
+        circuits.push(circuit);
+        junction_to_circuit_index.insert(*junction, circuits.len() - 1);
+    });
+
     let ordered_closest_junctions = get_ordered_closest_junctions(junctions.clone());
     let mut connections = 0;
 
@@ -31,9 +41,14 @@ fn main() {
 
         seen_pairs.insert((*junction1, *junction2));
 
-        if connections == 1000 {
+        let total_alive_circuits = circuits.iter().filter(|circuit| !circuit.dead).count();
+
+        if connections > 1000 && total_alive_circuits == 1 {
+            // This is how I found the pair for part 2 - for part 1 you can just break after 1000 connections
+            println!("last pair did it");
             break;
         }
+        println!("connection pair: {:?} {:?}", junction1, junction2);
 
         connections += 1;
 
@@ -52,7 +67,7 @@ fn main() {
                 let circuit2_junctions = circuits[circuit_index_j2].junctions.clone();
 
                 circuits[circuit_index_j1].add_junctions(circuit2_junctions.clone());
-                // circuits.remove(circuit_index_j2);
+                circuits[circuit_index_j2].mark_dead();
 
                 for junction in circuit2_junctions {
                     junction_to_circuit_index.insert(junction, circuit_index_j1);
@@ -73,6 +88,7 @@ fn main() {
             (None, None) => {
                 // New Circuit
                 let circuit = Circuit {
+                    dead: false,
                     size: 2,
                     junctions: vec![*junction1, *junction2],
                 };
@@ -86,14 +102,11 @@ fn main() {
 
     println!("Total circuits: {:?}", circuits.len());
 
-    println!("Circuit 1 junctions: {:?}", circuits[0].junctions);
-    // println!("Circuit 2 junctions: {:?}", circuits[1].junctions);
-    // println!("Circuit 3 junctions: {:?}", circuits[2].junctions);
-
     circuits.sort_by(|a, b| b.size.cmp(&a.size));
 
     let total = circuits
         .iter()
+        .filter(|circuit| !circuit.dead)
         .take(3)
         .map(|circuit| circuit.size)
         .product::<usize>();
@@ -103,6 +116,7 @@ fn main() {
 struct Circuit {
     junctions: Vec<[i64; 3]>,
     size: usize,
+    dead: bool,
 }
 
 impl Circuit {
@@ -114,6 +128,12 @@ impl Circuit {
     fn add_junctions(self: &mut Self, junctions: Vec<[i64; 3]>) {
         self.junctions.extend(junctions);
         self.size = self.junctions.len();
+    }
+
+    fn mark_dead(self: &mut Self) {
+        self.dead = true;
+        self.junctions.clear();
+        self.size = 0;
     }
 }
 
