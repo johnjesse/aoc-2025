@@ -1,6 +1,9 @@
 use regex::Regex;
 use std::collections::HashMap;
+use std::time::Instant;
+
 fn main() {
+    let start = Instant::now();
     let input =
         std::fs::read_to_string("src/bin/day11/input.txt").expect("Failed to read input.txt");
 
@@ -12,8 +15,8 @@ fn main() {
 
     // Part 2
     let mut cache = HashMap::new();
-    let paths = find_paths_recursive(&racks, &"you".to_string(), &[], vec![], &mut cache);
-    println!("Paths: {}", paths);
+    // let paths = find_paths_recursive(&racks, &"you".to_string(), &[], vec![], &mut cache);
+    // println!("Paths: {}", paths);
 
     let paths = find_paths_recursive(
         &racks,
@@ -23,6 +26,8 @@ fn main() {
         &mut cache,
     );
     println!("Paths: {}", paths);
+
+    println!("\nTotal time: {:?}", start.elapsed());
 }
 
 #[derive(Clone)]
