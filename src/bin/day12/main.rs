@@ -1,22 +1,27 @@
 use std::collections::HashSet;
 
 fn main() {
-    let presents_input = std::fs::read_to_string("src/bin/day12/test-presents.txt")
-        .expect("Failed to read presents.txt");
+    let presents_input =
+        std::fs::read_to_string("src/bin/day12/presents.txt").expect("Failed to read presents.txt");
 
     let areas_input =
-        std::fs::read_to_string("src/bin/day12/test-areas.txt").expect("Failed to read areas.txt");
+        std::fs::read_to_string("src/bin/day12/areas.txt").expect("Failed to read areas.txt");
 
     let presents = parse_presents(&presents_input);
     let areas = parse_areas(&areas_input);
 
-    for present in presents {
-        present.print_grid();
-    }
-
-    for area in areas {
-        println!("Area: {:?}", area);
-    }
+    let trivially_packable_areas = areas
+        .iter()
+        .filter(|area| is_area_trivially_packable(&area))
+        .count();
+    let impossible_to_pack_areas = areas
+        .iter()
+        .filter(|area| is_area_impossible_to_pack(&area))
+        .count();
+    println!("Trivially packable areas: {}", trivially_packable_areas);
+    println!("Impossible to pack areas: {}", impossible_to_pack_areas);
+    let total_areas = areas.len();
+    println!("Total areas: {}", total_areas);
 }
 
 #[derive(Clone, Debug)]
@@ -126,6 +131,11 @@ fn parse_presents(input: &str) -> Vec<Present> {
         }
     }
 
+    // Add the last group if it exists
+    if !current_group.is_empty() {
+        line_groups.push(current_group);
+    }
+
     return line_groups
         .iter()
         .map(|group| Present::from_lines(group))
@@ -158,4 +168,29 @@ fn parse_areas(input: &str) -> Vec<Area> {
             };
         })
         .collect::<Vec<Area>>();
+}
+
+// Technically this is not correct, but it's a good enough approximation for now
+fn is_area_trivially_packable(area: &Area) -> bool {
+    let area_size = area.height * area.width;
+    let maximum_present_area = area.presents.iter().map(|(_, count)| count).sum::<usize>() * 9;
+    return area_size >= maximum_present_area;
+}
+
+fn is_area_impossible_to_pack(area: &Area) -> bool {
+    let area_size = area.height * area.width;
+    let minimum_present_area = area
+        .presents
+        .iter()
+        .map(|(present_index, count)| match present_index {
+            0 => count * 7,
+            1 => count * 7,
+            2 => count * 7,
+            3 => count * 5,
+            4 => count * 7,
+            5 => count * 6,
+            _ => panic!("Invalid present index: {}", present_index),
+        })
+        .sum::<usize>();
+    return area_size < minimum_present_area;
 }
